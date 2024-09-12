@@ -9,4 +9,5 @@ Congjing Ran, rancongjing@whu.edu.cn;
 Fuxin Wang, wangfuxin@whu.edu.cn.
 
 ## Datasets:
-Two datasets on biomedical and artificial intelligence with patent ID, abstract, title, and IPC.
+The dataset consists of 10,000 patents in the field of artificial intelligence, each containing a patent ID, abstract, title, and IPC classification.
+
