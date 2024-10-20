@@ -124,8 +124,10 @@ def main_process(IPC_train, BERT_train, BERT_test, ID_test):
     X_test_auto = Train_auto_data[int(len(Train_auto_data)*0.7):]
 
     autoencoder = Auto_encoder(X_train_auto.shape[1], 32)
+    # For MSE
     autoencoder.compile(optimizer='adam', loss=losses.MeanSquaredError())
-
+    # For BCE
+    # autoencoder.compile(optimizer='adam', loss=losses.BinaryCrossentropy())
     autoencoder.fit(X_train_auto, X_train_auto,
                 epochs=30,
                 shuffle=True,
