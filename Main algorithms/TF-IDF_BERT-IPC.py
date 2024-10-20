@@ -13,6 +13,8 @@ from numpy import linalg as LA
 from nltk.tokenize import word_tokenize
 from collections import Counter
 from sentence_transformers import SentenceTransformer
+import spacy
+import textacy
 
 # %%
 def read_all_line(file):
@@ -155,4 +157,50 @@ tf_array = tf_df_noID.to_numpy()
 results_tf = sim_res(tf_array[0], tf_array)
 result_sort = np.argsort(results_tf)[::-1]
 
+# %% [markdown]
+# ### SVO
 
+nlp = spacy.load('en_core_web_sm')
+def SVO_out(patent_token):
+    text = nlp(patent_token)
+    sub_li, ver_li, obj_li = [], [], []
+    svo_li = textacy.extract.subject_verb_object_triples(text)
+    svo_li = list(svo_li)
+    for i in svo_li:
+        sub_li += i[0]
+        ver_li += i[1]
+        obj_li += i[2]
+    return list(map(str, sub_li)), list(map(str, ver_li)), list(map(str, obj_li))
+
+def SVO_sim_process(dict_key, text_con):
+    temp = []
+    for i in dict_key:
+        if i in text_con:
+            temp.append(1)
+        else:
+            temp.append(0)
+    return temp
+
+def SVO_compare(text0, text1):
+    sub0, ver0, obj0 = SVO_out(text0)
+    sub1, ver1, obj1 = SVO_out(text1)
+    sub_set = set(sub0 + sub1)
+    ver_set = set(ver0 + ver1)
+    obj_set = set(obj0 + obj1)
+    sub0 = SVO_sim_process(sub_set, sub0)
+    sub1 = SVO_sim_process(sub_set, sub1)
+    ver0 = SVO_scos_simim_process(ver_set, ver0)
+    ver1 = SVO_sim_process(ver_set, ver1)
+    obj0 = SVO_sim_process(obj_set, obj0)
+    obj1 = SVO_sim_process(obj_set, obj1)
+    sub_res = cos_sim(sub0, sub1)
+    ver_res = cos_sim(ver0, ver1)
+    obj_res = cos_sim(obj0, obj1)
+    return (sub_res+ver_res+obj_res)/3
+
+results_svo = []
+for i in test_data['token']:
+    temp = SVO_compare(test_data['token'][0], i)
+    results_svo.append(temp[0][0])
+results_svo = np.array(results_svo)
+result_sort = np.argsort(results_svo)[::-1]
